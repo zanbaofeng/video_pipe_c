@@ -165,7 +165,7 @@ namespace vp_nodes {
 		}
 
 
-        // ½«tracker ÈûÈë vp_frame_targets
+        // å°†tracker å¡å…¥ vp_frame_targets
         for (const auto tb : frameTrackingResult)
         {
             auto vp_element = std::make_shared<vp_objects::vp_frame_element>(tb.id);

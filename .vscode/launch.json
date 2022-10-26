@@ -5,7 +5,7 @@
             "name": "C/C++: g++ vp project",  // debug for vp framework
             "type": "cppdbg",
             "request": "launch",
-            "program": "${fileDirname}/${fileBasenameNoExtension}",
+            "program": "/home/baofengzan/Learning/video_pipe_c/build/video_pipe_c",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
@@ -20,7 +20,7 @@
                 "ignoreFailures": true
               }
             ],
-            "preLaunchTask": "C/C++: g++ vp project"
+            "preLaunchTask": "build"
         },
         {
           "name": "C/C++: g++ paddle_ocr",  // debug for paddle ocr

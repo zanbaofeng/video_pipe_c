@@ -8,16 +8,20 @@
 #include "../nodes/vp_screen_des_node.h"
 #include "../nodes/vp_rtmp_des_node.h"
 #include "../nodes/vp_split_node.h"
+#include "../nodes/vp_track_node.h"
 
 #include "../utils/analysis_board/vp_analysis_board.h"
 
 /*
-* ## 1-1-1 sample ##
-* 1 video input, 1 infer task, and 1 output.
+* sameple for:
+* vp_yunet_face_detector_node
+* vp_sface_feature_encoder_node
+* 
 */
 
-#if _1_1_1_sample
+#if MAIN5
 
+/*
 int main1() {
     //log init
     // config
@@ -57,8 +61,15 @@ int main1() {
     //rtmp_des_0->attach_to({osd_0});
 
     file_src_0->start();
+    file_src_1->start();
+    // for debug purpose
+    vp_utils::vp_analysis_board board({file_src_0, file_src_1});
+    board.display();
+    
+}
+*/
 
-int main() {
+int main2() {
     /*测试一个输入流，多个模型推理*/
     //log init
     // config
@@ -106,5 +117,41 @@ int main() {
     
 }
 
+
+
+int main() {
+    /*测试一个输入流，多个模型推理*/
+    //log init
+    // config
+    VP_SET_LOG_INCLUDE_THREAD_ID(false);
+    VP_SET_LOG_LEVEL(vp_utils::vp_log_level::WARN);
+    
+    // init
+    VP_LOGGER_INIT();
+    // create nodes
+    auto file_src_0 = std::make_shared<vp_nodes::vp_file_src_node>("file_src_0", 0, "/home/baofengzan/Learning/video_pipe_c/test_model/vp_data/test_video/face_tracker.mp4", 0.6);
+    //auto file_src_1 = std::make_shared<vp_nodes::vp_file_src_node>("file_src_1", 0, "/home/baofengzan/Learning/video_pipe_c/test_model/vp_data/test_video/face.mp4", 0.6);
+
+    auto yunet_face_detector_0 = std::make_shared<vp_nodes::vp_yunet_face_detector_node>("yunet_face_detector_0", "/home/baofengzan/Learning/video_pipe_c/test_model/vp_data/models/face/face_detection_yunet_2022mar.onnx");
+    //auto sface_face_encoder_0 = std::make_shared<vp_nodes::vp_sface_feature_encoder_node>("sface_face_encoder_0", "/home/baofengzan/Learning/video_pipe_c/test_model/vp_data/models/face/face_recognition_sface_2021dec.onnx");
+    auto sface_track = std::make_shared<vp_nodes::vp_track_node>("track_node_0");
+    
+    auto osd_0 = std::make_shared<vp_nodes::vp_face_osd_node_v2>("osd_0");
+    auto screen_des_0 = std::make_shared<vp_nodes::vp_screen_des_node>("screen_des_0", 0);
+
+
+    yunet_face_detector_0->attach_to({file_src_0});
+    sface_track->attach_to({yunet_face_detector_0});
+    osd_0->attach_to({sface_track});
+    screen_des_0->attach_to({osd_0});
+    //rtmp_des_0->attach_to({osd_0});
+  
+    file_src_0->start();
+    //file_src_1->start();
+    // for debug purpose
+    vp_utils::vp_analysis_board board({file_src_0});
+    board.display();
+    
+}
 
 #endif

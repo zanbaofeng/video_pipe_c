@@ -1,37 +1,12 @@
 {
     "tasks": [
         {
-            "type": "cppbuild",
-            "label": "C/C++: g++ vp project",
-            "command": "/usr/bin/g++",
-            "args": [
-                "-fdiagnostics-color=always",
-                "-g",
-                "${workspaceFolder}/sample/*.cpp",   // demo source code for vp framework
-                "-lopencv_core",
-                "-lopencv_videoio",
-                "-lopencv_highgui",
-                "-lopencv_imgproc",
-                "-lopencv_imgcodecs",
-                "-lopencv_dnn",
-                "-lopencv_video",
-                "-lpthread",
-                "-lvp",  // generated already by build.sh
-                "-std=c++17",
-                "-o",
-                "${fileDirname}/${fileBasenameNoExtension}"
-            ],
-            "options": {
-                "cwd": "${fileDirname}"
-            },
-            "problemMatcher": [
-                "$gcc"
-            ],
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
-            "detail": "build demo code for VideoPipe project"
+            "label": "build",
+            "type": "shell",
+            "command": "cd build && cmake .. && make -j8"
+
+            // for cmake
+            //"command": "cd build && make pro -j25"
         },
         {
             "type": "cppbuild",

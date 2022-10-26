@@ -49,12 +49,12 @@ namespace vp_objects {
         bool check_ba_ability(vp_ba::vp_ba_flag flag);
 
         // retrive all vertexs of the element
-        virtual std::vector<vp_objects::vp_point> key_points() = 0;
+        virtual std::vector<vp_objects::vp_point> key_points(){};
 
         // virtual clone method since we do not know what specific element we need copy in some situations, return a new pointer pointting to new memory allocation in heap.
         // note: every child class need implement its own clone() method.
         // see vp_meta also.
-        virtual std::shared_ptr<vp_frame_element> clone() = 0;
+        virtual std::shared_ptr<vp_frame_element> clone() {return std::make_shared<vp_frame_element>(*this);};
     };
 
 }

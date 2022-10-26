@@ -25,7 +25,11 @@ models/
 test_video/
 log/
 debug/
-
+build/
+test_model/
+build1/
+test_model1/
+main/log/
 # doc
 *.pptx
 

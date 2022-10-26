@@ -85,7 +85,7 @@ namespace vp_objects {
         // 3. ba_flag   : what
         // it is a cache for ba results(n*n) of current frame, we can check if state-switch has happened latter based on this value. 
         // deep copy needed here for this member.
-        std::vector<std::tuple<std::shared_ptr<vp_frame_element>, std::shared_ptr<vp_frame_target>, vp_ba::vp_ba_flag>> ba_flags_map;
+        std::vector<std::tuple<std::shared_ptr<vp_frame_element>, std::shared_ptr<vp_frame_target>, vp_ba::vp_ba_flag> > ba_flags_map;
 
         // copy myself
         virtual std::shared_ptr<vp_meta> clone() override;
