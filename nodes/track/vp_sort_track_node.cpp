@@ -1,51 +1,36 @@
-
-#include "vp_track_node.h"
-#include "../objects/vp_frame_target.h"
-#include "../objects/elements/vp_frame_element.h"
+#include "vp_sort_track_node.h"
 
 namespace vp_nodes {
         
-    vp_track_node::vp_track_node(std::string node_name): vp_node(node_name)
-    {
+    vp_sort_track_node::vp_sort_track_node(std::string node_name, 
+                                            vp_track_for track_for):
+                                            vp_track_node(node_name, track_for) {
         this->initialized();
         KalmanTracker::kf_count = 0;
     }
     
-    vp_track_node::~vp_track_node()
+    vp_sort_track_node::~vp_sort_track_node()
     {
     }
 
-    std::shared_ptr<vp_objects::vp_meta> vp_track_node::handle_control_meta(std::shared_ptr<vp_objects::vp_control_meta> meta) {
-        return meta;
-    }
-
-    std::shared_ptr<vp_objects::vp_meta> vp_track_node::handle_frame_meta(std::shared_ptr<vp_objects::vp_frame_meta> meta) {
-        /*
-        if (meta->frame_index % 10 == 0) {          
-            std::this_thread::sleep_for(std::chrono::milliseconds(29));
-        }
-        if (meta->frame_index % 100 == 0) {          
-            std::this_thread::sleep_for(std::chrono::milliseconds(84));
-        }
-        if (meta->frame_index % 130 == 0) {          
-            std::this_thread::sleep_for(std::chrono::milliseconds(60));
-        }*/
-
-        if (trackers.empty() || meta->face_targets.empty())
+    void vp_sort_track_node::track(std::vector<vp_objects::vp_rect>& target_rects, 
+                    const std::vector<std::vector<float>>& target_embeddings, 
+                    std::vector<int>& track_ids) {
+        // fill track_ids according to target_rects (target_embeddings ignored)
+        auto target_rect_dects = target_rects;
+        target_rects.clear();
+        if (trackers.empty())
         {
             /* first frame*/
-            for (unsigned int i = 0; i < meta->face_targets.size(); i++)
+            for (unsigned int i = 0; i < target_rect_dects.size(); i++)
 			{
-				KalmanTracker trk = KalmanTracker(cv::Rect_<float>(meta->face_targets[i]->x, meta->face_targets[i]->y, meta->face_targets[i]->width, meta->face_targets[i]->height));
+				KalmanTracker trk = KalmanTracker(cv::Rect_<float>(target_rect_dects[i].x, target_rect_dects[i].y, target_rect_dects[i].width, target_rect_dects[i].height));
 				trackers.push_back(trk);
-
 			}
-            return meta;
-        }
-
+            return;
+        }   
         //3.1. get predicted locations from existing trackers.
-         predictedBoxes.clear();
-
+        predictedBoxes.clear();
 		for (auto it = trackers.begin(); it != trackers.end();)
 		{
 			Rect_<float> pBox = (*it).predict();
@@ -60,23 +45,24 @@ namespace vp_nodes {
 				//cerr << "Box invalid at frame: " << frame_count << endl;
 			}
 		}
-
+        
         // 3.2. associate detections to tracked object (both represented as bounding boxes)
 		// dets : detFrameData[fi]
 		auto trkNum = predictedBoxes.size();
-		auto detNum = meta->face_targets.size();
+		auto detNum = target_rect_dects.size();
 
 		iouMatrix.clear();
 		iouMatrix.resize(trkNum, vector<double>(detNum, 0));
-
-		for (unsigned int i = 0; i < trkNum; i++) // compute iou matrix as a distance matrix
+        
+        for (unsigned int i = 0; i < trkNum; i++) // compute iou matrix as a distance matrix
 		{
 			for (unsigned int j = 0; j < detNum; j++)
 			{
 				// use 1-iou because the hungarian algorithm computes a minimum-cost assignment.
-				iouMatrix[i][j] = 1 - GetIOU(predictedBoxes[i], cv::Rect_<float>(meta->face_targets[j]->x, meta->face_targets[j]->y, meta->face_targets[j]->width, meta->face_targets[j]->height));
+				iouMatrix[i][j] = 1 - GetIOU(predictedBoxes[i], cv::Rect_<float>(target_rect_dects[j].x, target_rect_dects[j].y, target_rect_dects[j].width, target_rect_dects[j].height));
 			}
 		}
+
 
         // solve the assignment problem using hungarian algorithm.
 		// the resulting assignment is [track(prediction) : detection], with len=preNum
@@ -90,7 +76,8 @@ namespace vp_nodes {
 		allItems.clear();
 		matchedItems.clear();
 
-		if (detNum > trkNum) //	there are unmatched detections
+
+        if (detNum > trkNum) //	there are unmatched detections
 		{
 			for (unsigned int n = 0; n < detNum; n++)
 				allItems.insert(n);
@@ -110,6 +97,7 @@ namespace vp_nodes {
 		}
 		else
 		{}
+        
         // filter out matched with low IOU
 		matchedPairs.clear();
 		for (unsigned int i = 0; i < trkNum; ++i)
@@ -124,6 +112,8 @@ namespace vp_nodes {
 			else
 				matchedPairs.push_back(cv::Point(i, assignment[i]));
 		}
+
+
         // 3.3. updating trackers
 		// update matched trackers with assigned detections.
 		// each prediction is corresponding to a tracker
@@ -132,13 +122,19 @@ namespace vp_nodes {
 		{
 			trkIdx = matchedPairs[i].x;
 			detIdx = matchedPairs[i].y;
-			trackers[trkIdx].update(cv::Rect_<float>(meta->face_targets[detIdx]->x, meta->face_targets[detIdx]->y, meta->face_targets[detIdx]->width, meta->face_targets[detIdx]->height));
+			trackers[trkIdx].update(cv::Rect_<float>(target_rect_dects[detIdx].x, 
+                                                    target_rect_dects[detIdx].y, 
+                                                    target_rect_dects[detIdx].width, 
+                                                    target_rect_dects[detIdx].height));
 		}
 
 		// create and initialise new trackers for unmatched detections
-		for (auto umd : unmatchedDetections)
+		for (auto& umd : unmatchedDetections)
 		{
-			KalmanTracker tracker = KalmanTracker(cv::Rect_<float>(meta->face_targets[umd]->x, meta->face_targets[umd]->y, meta->face_targets[umd]->width, meta->face_targets[umd]->height));
+			KalmanTracker tracker = KalmanTracker(cv::Rect_<float>(target_rect_dects[umd].x, 
+                                                                   target_rect_dects[umd].y,
+                                                                   target_rect_dects[umd].width, 
+                                                                   target_rect_dects[umd].height));
 			trackers.push_back(tracker);
 		}
 
@@ -152,7 +148,7 @@ namespace vp_nodes {
 				TrackingBox res;
 				res.box = (*it).get_state();
 				res.id = (*it).m_id + 1;
-				res.frame = meta->frame_index;
+				//res.frame = meta->frame_index;
 				frameTrackingResult.push_back(res);
 				it++;
 			}
@@ -164,29 +160,24 @@ namespace vp_nodes {
 				it = trackers.erase(it);
 		}
 
-
-        // 将tracker 塞入 vp_frame_targets
-        for (const auto tb : frameTrackingResult)
+        for (const auto& tb : frameTrackingResult)
         {
-            auto vp_element = std::make_shared<vp_objects::vp_frame_element>(tb.id);
-            auto vp_target = std::make_shared<vp_objects::vp_frame_target>(tb.box.x, tb.box.y, tb.box.width, tb.box.height, 0, 1, tb.frame, meta->channel_index);
-            //std::vector<std::tuple<std::shared_ptr<vp_frame_element>, std::shared_ptr<vp_frame_target>, vp_ba::vp_ba_flag>> ba_flags_map;
-            vp_target->track_id = tb.id;
-            vp_target->tracks.push_back(vp_objects::vp_rect(tb.box.x, tb.box.y, tb.box.width, tb.box.height));
-			//printf("------------------------------------------id = %d\n", tb.id);
-			meta->ba_flags_map.push_back(std::make_tuple(vp_element, vp_target, vp_ba::vp_ba_flag::NONE));
+			// id and box need to correspond
+            track_ids.push_back(tb.id);
+            target_rects.push_back(vp_objects::vp_rect(tb.box.x, tb.box.y, tb.box.width, tb.box.height));
         }
-        return meta;
+        return;
+
     }
 
-    double vp_track_node::GetIOU(cv::Rect_<float> bb_test, cv::Rect_<float> bb_gt)
-    {
-        float in = (bb_test & bb_gt).area();
+    double vp_sort_track_node::GetIOU(cv::Rect_<float> bb_test, cv::Rect_<float> bb_gt){
+         float in = (bb_test & bb_gt).area();
         float un = bb_test.area() + bb_gt.area() - in;
 
         if (un < DBL_EPSILON)
             return 0;
 
         return (double)(in / un);
+
     }
 }

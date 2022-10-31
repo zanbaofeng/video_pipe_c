@@ -1,19 +1,21 @@
-
 #pragma once
 
-#include "vp_node.h"
-#include "./sort/Hungarian.h"
-#include "./sort/KalmanTracker.h"
 #include <vector>
 #include <set>
+#include "vp_track_node.h"
+#include "sort/Hungarian.h"
+#include "sort/KalmanTracker.h"
+
 namespace vp_nodes {
-    class vp_track_node: public vp_node
+    // track node using sort
+    class vp_sort_track_node: public vp_track_node
     {
     private:
+        /* config data for sort algo */
         /* data */
         typedef struct TrackingBox
         {
-            int frame;
+            //int frame;
             int id;
             Rect_<float> box;
         }TrackingBox;
@@ -31,15 +33,17 @@ namespace vp_nodes {
         std::set<int> matchedItems;
         std::vector<cv::Point> matchedPairs;
         std::vector<TrackingBox> frameTrackingResult;
-
-    protected:
-        virtual std::shared_ptr<vp_objects::vp_meta> handle_frame_meta(std::shared_ptr<vp_objects::vp_frame_meta> meta) override;
-        virtual std::shared_ptr<vp_objects::vp_meta> handle_control_meta(std::shared_ptr<vp_objects::vp_control_meta> meta) override;
-    public:
-        vp_track_node(std::string node_name);
-        ~vp_track_node();
-
     private:
         double GetIOU(cv::Rect_<float> bb_test, cv::Rect_<float> bb_gt);
+    protected:
+        // fill track_ids using sort algo
+        virtual void track(std::vector<vp_objects::vp_rect>& target_rects, 
+                        const std::vector<std::vector<float>>& target_embeddings, 
+                        std::vector<int>& track_ids) override;
+    public:
+        vp_sort_track_node(std::string node_name, vp_track_for track_for = vp_track_for::NORMAL);
+        virtual ~vp_sort_track_node();
     };
+
 }
+

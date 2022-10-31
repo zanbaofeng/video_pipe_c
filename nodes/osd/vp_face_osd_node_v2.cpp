@@ -22,21 +22,16 @@ namespace vp_nodes {
             auto roi = meta->osd_frame(cv::Rect(0, 0, meta->frame.cols, meta->frame.rows));
             meta->frame.copyTo(roi);
         }
-        auto& canvas = meta->osd_frame;
-
-        for (int idx = 0; idx < meta->ba_flags_map.size(); idx++)
-        {
-            /* code */
-            auto& track = meta->ba_flags_map[idx];
-            auto id = std::to_string(std::get<1>(track)->track_id);
-            cv::rectangle(canvas, cv::Rect(std::get<1>(track)->x, std::get<1>(track)->y, std::get<1>(track)->width, std::get<1>(track)->height), cv::Scalar(0, 0, 255), 2);
-            cv::putText(canvas, id, cv::Point(std::get<1>(track)->x, std::get<1>(track)->y), 1, 2, cv::Scalar(0, 0, 255));
-        }
-        
+        auto& canvas = meta->osd_frame;  
         // scan face targets in current frame
         for(auto& i : meta->face_targets) {
             // draw face rect first
             cv::rectangle(canvas, cv::Rect(i->x, i->y, i->width, i->height), cv::Scalar(0, 255, 0), 2);
+            
+            //track_id
+            auto id = std::to_string(i->track_id);
+            cv::putText(canvas, id, cv::Point(i->x, i->y), 1, 2, cv::Scalar(0, 0, 255));
+
             // just handle 5 keypoints
             if (i->key_points.size() >= 5) {
                 cv::circle(canvas, cv::Point(i->key_points[0].first, i->key_points[0].second), 2, cv::Scalar(255, 0, 0), 2);
