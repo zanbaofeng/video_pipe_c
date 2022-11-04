@@ -32,11 +32,26 @@ namespace vp_nodes {
         auto& canvas = meta->osd_frame;
         // scan targets
         for (auto& i : meta->targets) {
+            // track_id
+            auto id = std::to_string(i->track_id);
             auto labels_to_display = i->primary_label;
+            if (!id.empty()) {
+                labels_to_display = "#" + id + " " + labels_to_display;
+            }
+            
             for (auto& label : i->secondary_labels) {
                 labels_to_display += "/" + label;
             }
             
+            // draw tracks if size>=2
+            if (i->tracks.size() >= 2) {
+                for (int n = 0; n < (i->tracks.size() - 1); n++) {
+                    auto p1 = i->tracks[n].track_point();
+                    auto p2 = i->tracks[n + 1].track_point();
+                    cv::line(canvas, cv::Point(p1.x, p1.y), cv::Point(p2.x, p2.y), cv::Scalar(0, 255, 255), 1, cv::LINE_AA);
+                }
+            }
+
             cv::rectangle(canvas, cv::Rect(i->x, i->y, i->width, i->height), cv::Scalar(255, 255, 0), 2);
             if (ft2 != nullptr) {
                 ft2->putText(canvas, labels_to_display, cv::Point(i->x, i->y), 20, cv::Scalar(255, 0, 255), cv::FILLED, cv::LINE_AA, true);
