@@ -2,10 +2,6 @@
 
 ## VideoPipe [under development yet]
 
-https://user-images.githubusercontent.com/13251045/192935445-d39a41af-4619-4ae1-a975-19de44014fa2.mp4
-
-https://user-images.githubusercontent.com/13251045/192935363-70fe8a81-d84f-4ef6-91b0-08e1b5d94eac.mp4
-
 A framework for video structured. It could handle complex tasks such as stream reading (from local or network), video decoding, inference based on deep learning models, OSD(on screen display), message broker via middleware (like kafka), video encoding and stream pushing(rtmp or local file). It's Plugin-Oriented coding style, we can construct different types of pipeline using independent plugins namely `Node` in framework. 
 
 VideoPipe works like DeepStream from Nvidia and MindX SDK from Huawei, but it is more simple to use, more portable and has few dependency on third-party modules such as gstreamer which is hard to learn(coding style or debug). The framework is written purely by native C++ STL, and depends on popular modules like OpenCV, so the code is more portable for different platforms.
@@ -22,15 +18,19 @@ The framework can be used in such situations:
 
 [中文说明(知乎)](https://zhuanlan.zhihu.com/p/544978583) | [中文说明(CSDN)](https://blog.csdn.net/xiaozhi_5638/article/details/126352185) | [中文说明(博客园)](https://www.cnblogs.com/xiaozhi_5638/p/16520710.html)
 
+https://user-images.githubusercontent.com/13251045/192935445-d39a41af-4619-4ae1-a975-19de44014fa2.mp4
+
+https://user-images.githubusercontent.com/13251045/199926565-4f1018be-fdee-4d0d-8d4a-8da0a1a15c83.mp4
+
 ## Key Features
 - `Stream Reading`. Support popular protocols such as udp, rtsp, rtmp, file.
 - `Video Decoding`. Support video decoding which is based on opencv/ffmpeg.
 - `Inference based on dl`. Support multi-level inference based on deep learning models, such as Object-Detection, Image-Classification, Feature-Extraction. What you need is preparing models and know how to parse its outputs. Inference can be implemented based on different backends such as opencv::dnn(default), tensorrt, paddle_inference, onnx runtime.
 - `On Screen Display(OSD)`. Support visualization, like drawing outputs from model onto frame.
 - `Message Broker[not implemented yet]`. Support push structured data(via json) to cloud or other platforms.
-- `Object Tracking[not implemented yet]`. Support object tracking such as iou, sort etc.
+- `Object Tracking`. Support object tracking such as iou, sort etc.
 - `Behaviour Analyse[not implemented yet]`. Support behaviour analyse based on tracking.
-- `Recording[not implemented yet]`. Support video recording for specific period, screenshots for specific frame.
+- `Recording`. Support video recording for specific period, screenshots for specific frame.
 - `Video Encoding`. Support video encoding which is based on opencv/ffmpeg.
 - `Stream Pushing`. Support stream pushing via rtmp, rtsp, file.
 
@@ -41,12 +41,7 @@ The framework can be used in such situations:
 3. We can construct different types of pipeline, only 1 channel in a pipeline or multi channels in a pipeline are both supported, channels in pipeline are independent. 
 4. The pipeline support hooks, we can register callbacks to the pipeline to get the status notification(see the 1st item), such as fps.
 5. Many node classes are already built-in in VideoPipe, but all nodes in framework can be re-implemented by yourself, and also you can implement more based on your requirements.
-6. The whole framework is written mainly by native C++ which is portable to all platforms. 
-
-Tow modes to transfer data:
-
-![](./doc/p3.png)
-![](./doc/p4.png)
+6. The whole framework is written mainly by native C++ which is portable to all platforms.
 
 ## Help doc
 - [sample code](./sample/README.md)
@@ -193,7 +188,5 @@ The products below borrow some experience/ideas from VideoPipe:
 
 ### behaviour analysis
 ![](./doc/p6.png)
-
-
 ### image/video search
 ![](./doc/p7.png)
