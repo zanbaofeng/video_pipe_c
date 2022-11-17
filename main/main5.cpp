@@ -5,6 +5,7 @@
 #include "../nodes/infers/vp_yunet_face_detector_node.h"
 #include "../nodes/infers/vp_sface_feature_encoder_node.h"
 #include "../nodes/osd/vp_face_osd_node_v2.h"
+#include "../nodes/osd/vp_face_osd_node.h"
 #include "../nodes/vp_screen_des_node.h"
 #include "../nodes/vp_rtmp_des_node.h"
 #include "../nodes/vp_split_node.h"
@@ -132,11 +133,11 @@ int main() {
     auto file_src_0 = std::make_shared<vp_nodes::vp_file_src_node>("file_src_0", 0, "/home/baofengzan/Learning/tensorRT_Pro/workspace/exp/face_tracker.mp4", 0.6);
     //auto file_src_1 = std::make_shared<vp_nodes::vp_file_src_node>("file_src_1", 0, "/home/baofengzan/Learning/video_pipe_c/test_model/vp_data/test_video/face.mp4", 0.6);
 
-    auto yunet_face_detector_0 = std::make_shared<vp_nodes::vp_yunet_face_detector_node>("yunet_face_detector_0", "/home/baofengzan/Learning/video_pipe_c1/test_model/vp_data/models/face/face_detection_yunet_2022mar.onnx");
+    auto yunet_face_detector_0 = std::make_shared<vp_nodes::vp_yunet_face_detector_node>("yunet_face_detector_0", "/home/baofengzan/Learning/video_pipe_c/test_model/vp_data/models/face/face_detection_yunet_2022mar.onnx");
     //auto sface_face_encoder_0 = std::make_shared<vp_nodes::vp_sface_feature_encoder_node>("sface_face_encoder_0", "/home/baofengzan/Learning/video_pipe_c/test_model/vp_data/models/face/face_recognition_sface_2021dec.onnx");
     auto sface_track = std::make_shared<vp_nodes::vp_sort_track_node>("track_node_0", vp_nodes::vp_track_for::FACE);
     
-    auto osd_0 = std::make_shared<vp_nodes::vp_face_osd_node_v2>("osd_0");
+    auto osd_0 = std::make_shared<vp_nodes::vp_face_osd_node>("osd_0");
     auto screen_des_0 = std::make_shared<vp_nodes::vp_screen_des_node>("screen_des_0", 0);
 
     yunet_face_detector_0->attach_to({file_src_0});
