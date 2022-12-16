@@ -16,8 +16,6 @@ The framework can be used in such situations:
 > NOTE: <br/>
 > VideoPipe is a framework aimed to make model-integration more simple in CV field, it is not a deep learning related frameworks such as tensorflow, tensorrt.
 
-[中文说明(知乎)](https://zhuanlan.zhihu.com/p/544978583) | [中文说明(CSDN)](https://blog.csdn.net/xiaozhi_5638/article/details/126352185) | [中文说明(博客园)](https://www.cnblogs.com/xiaozhi_5638/p/16520710.html)
-
 https://user-images.githubusercontent.com/13251045/192935445-d39a41af-4619-4ae1-a975-19de44014fa2.mp4
 
 https://user-images.githubusercontent.com/13251045/199926565-4f1018be-fdee-4d0d-8d4a-8da0a1a15c83.mp4
@@ -27,7 +25,7 @@ https://user-images.githubusercontent.com/13251045/199926565-4f1018be-fdee-4d0d-
 - `Video Decoding`. Support video decoding which is based on opencv/ffmpeg.
 - `Inference based on dl`. Support multi-level inference based on deep learning models, such as Object-Detection, Image-Classification, Feature-Extraction. What you need is preparing models and know how to parse its outputs. Inference can be implemented based on different backends such as opencv::dnn(default), tensorrt, paddle_inference, onnx runtime.
 - `On Screen Display(OSD)`. Support visualization, like drawing outputs from model onto frame.
-- `Message Broker[not implemented yet]`. Support push structured data(via json) to cloud or other platforms.
+- `Message Broker`. Support push structured data(via json/xml) to cloud, file or other platforms.
 - `Object Tracking`. Support object tracking such as iou, sort etc.
 - `Behaviour Analyse[not implemented yet]`. Support behaviour analyse based on tracking.
 - `Recording`. Support video recording for specific period, screenshots for specific frame.
@@ -52,8 +50,12 @@ https://user-images.githubusercontent.com/13251045/199926565-4f1018be-fdee-4d0d-
 
 ## Dependency
 
+Platforms
+- ubuntu 18.04 x86_64 NVIDIA rtx/tesla GPUs
+- ubuntu 18.04 aarch64 NVIDIA jetson serials device ([tx2 tested](https://github.com/sherlockchou86/video_pipe_c/tree/jetson_tx2))
+- other platforms wait for tested
+
 Basics
-- ubuntu 18.04 x64 (other platforms waiting for test)
 - vscode (remote development on windows)
 - c++ 17
 - opencv 4.6
@@ -122,7 +124,7 @@ Use IDEs such as *CLion* which will read the `CMakeLists.txt` and generate debug
 
 [download models and test files from Google Drive](https://drive.google.com/file/d/14J8RFK_vJFXBp_ER4sb5Oh8uJTyLyyK_/view?usp=sharing)
 
-[download models and test files from Baidu Pan(wait for update)]()
+[download models and test files from Baidu Pan](https://pan.baidu.com/s/11W7seUXWwYofaYNVGChIEw?pwd=gs4w) wechat:zhzhi78 for onnx models file
 
 Demo below shows how to construct pipeline and run it (first change file path in code):
 ```c++
